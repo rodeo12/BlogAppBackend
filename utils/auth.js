@@ -16,3 +16,4 @@ jwt.verify(token,config.JWT_SECRET,(err,decoded)=>{
     next();
 })
 }
+

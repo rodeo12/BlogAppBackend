@@ -4,7 +4,7 @@ const cors= require("cors")
 const config= require("./config")
 const authRoutes= require("./routes/authRoutes")
 const blogRoutes = require("./routes/blogRoutes")
-const commentRoutes = require("./routes/commentRoutes")
+ const commentRoutes = require("./routes/commentRoutes")
 
 const app=  express() ;
 app.use(express.json())
@@ -29,7 +29,7 @@ mongoose.connect(config.mongoUrl,{
 
 app.use("/api",authRoutes);
 app.use("/api",blogRoutes) ;
-app.use("/api",commentRoutes) ;
+ app.use("/api",commentRoutes) ;
 
 app.get("/",(req,res)=>{
     res.send("Welcome to the Blog App Database")

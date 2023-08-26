@@ -2,7 +2,7 @@ const commentSchema = require("./comment");
 const mongoose=require("mongoose")
 
 const blogSchema = new mongoose.Schema({
-"username": {type:mongoose.Schema.Types.ObjectId,ref:"User",required:true},
+"user": {type:mongoose.Schema.Types.ObjectId,ref:"User"},
 "title":{type:String,require:true},
 "content":{type:String,require:true},
 "category": {type: String,enum:["Business","Tech", "Lifestyle","Entertainment"], default:"Business",require:true},

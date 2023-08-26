@@ -3,7 +3,7 @@ const Blog= require("../model/Blog")
 exports.getAllBlogs = async(req,res)=>{
 
 try{
-    const blogs= await Blog.find({user:req.user._id})
+    const blogs= await Blog.find({user:req.user})
     .populate("user","username")
     .sort({date:-1});
     res.json(blogs)
@@ -16,9 +16,10 @@ try{
 exports.searchBlogsByTitle = async(req,res)=>{
 
     try{
-        const titleQuery= req.query.title;
+        const titleQuery= req.params.query;
+        // console.log(titleQuery)
         const blogs= await Blog.find({
-            user:req.user._id,
+            user:req.user,
             title:{$regex:titleQuery,$options:"i"}
         })
         .populate("user","username")
@@ -27,7 +28,7 @@ exports.searchBlogsByTitle = async(req,res)=>{
         
     }catch(error){
         console.error("error fetching blogs",error);
-        res.status(500).json({error:"error occurres"});
+        res.status(500).json({error:"error occurred"});
     }
     }
 
@@ -35,11 +36,14 @@ exports.searchBlogsByTitle = async(req,res)=>{
     exports.getBlogsByCategory = async(req,res)=>{
 
         try{
-            const categoryQuery= req.query.category;
+            const categoryQuery= req.params.query;
+            // console.log(categoryQuery)
             const blogs= await Blog.find({
-                user:req.user._id,
+                user:req.user,
                 category: categoryQuery
+                 
             })
+            
             .populate("user","username")
             .sort({date:-1});
             res.json(blogs)      
@@ -54,11 +58,12 @@ exports.searchBlogsByTitle = async(req,res)=>{
 
         exports.getSortedBlogs = async(req,res)=>{
 
-            try{
-                const order= req.query.order ==="asc" ? 1: 1;
-                const blogs= await Blog.find({user:req.user._id})
+            try{ 
+                const date = req.params.date;
+                const order= req.query.order;
+                const blogs= await Blog.find({user:req.user})
                 .populate("user","username")
-                .sort({date:-1});
+                .sort({date:order});
                 res.json(blogs)      
                 
             }catch(error){
@@ -67,22 +72,25 @@ exports.searchBlogsByTitle = async(req,res)=>{
             }
             }
     
-
+// Create Blog
             exports.createBlog = async(req,res)=>{
 
                 try{
                     const {title,content,category}= req.body ;
-                    const user= req.user._id;
+                    const user= req.user;
+                    // console.log(user)
                     const newblog= new Blog ({user,title,content,category});
                     const savedBlog= await newblog.save();
                     res.status(201).json(savedBlog);
                     
                 }catch(error){
                     console.error("error creating blogs",error);
-                    res.status(500).json({error:"error occurred"});
+                    res.send(error)
+                    // res.status(500).json({error:"error occurred"});
                 }
                 }
         
+// Update Blog
                 exports.updateBlog = async(req,res)=>{
 
                     try{
@@ -121,22 +129,31 @@ exports.searchBlogsByTitle = async(req,res)=>{
                         }
                         }
 
-                        
+   ///Like BLog                     
 
                         exports.likeBlog = async(req,res)=>{
 
                             try{
-                                const blogId= req.params.id;
-                                const user= req.user._id;
-                                const blog= await Blog.findById({blogId});
+                                const blogId= req.params.id; 
+                                console.log(blogId) 
+                                // const user= req.user._id;
+                           
+                                const blog = await Blog.findByIdAndUpdate(
+                                    blogId,
+                                    { $inc: { likes: 1 } },
+                                    { new: true }
+                                  );
+                             console.log(blog) 
                               if(!blog){
                                 return res.status(404).json({error:"Blog not found"});
                               }
-                              if(blog.likes.includes(user)){
-                                return res.status(400).json({error:"You already liked this blog"});
-                              }    
-                              blogs.likes.push(user)
-                              await blog.save();
+                            //   if(blog.likes.includes(user)){
+                            //     return res.status(400).json({error:"You already liked this blog"});
+                            //   }    
+                            //   blog.likes.push(user)
+                            await blog.save();
+                            return res.status(404).json({error:"Blog liked"});
+                              
                             }catch(error){
                                 console.error("error creating blogs",error);
                                 res.status(500).json({error:"error occurred"});
